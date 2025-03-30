@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
@@ -58,12 +58,12 @@
       "explorer/context": [
         {
           "command": "concatenate.explorerFiles",
-          "when": "explorerResourceIsFolder == false && explorerResourceIsRoot == false && selectedItemsInExplorer",
+          "when": "explorerResourceIsFolder == false",
           "group": "concatenate"
         },
         {
           "command": "concatenate.explorerFilesAsNewDocument",
-          "when": "explorerResourceIsFolder == false && explorerResourceIsRoot == false && selectedItemsInExplorer",
+          "when": "explorerResourceIsFolder == false",
           "group": "concatenate"
         }
       ]
