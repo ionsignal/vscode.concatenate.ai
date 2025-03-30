@@ -1,0 +1,86 @@
+{
+  "private": true,
+  "name": "concatenate-for-ai",
+  "displayName": "Concatenate for AI",
+  "description": "Concatenates selected files for use with AI",
+  "version": "0.0.7",
+  "publisher": "neutrino84",
+  "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
+  "bugs": {
+    "url": "https://github.com/neutrino84/vscode.concatenate.ai/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neutrino84/vscode.concatenate.ai.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Oliver Dyla",
+    "email": "neutrino84@gmail.com",
+    "url": "https://ionsignal.com"
+  },
+  "engines": {
+    "vscode": "^1.98.0"
+  },
+  "icon": "images/icon.png",
+  "categories": [
+    "Other",
+    "Formatters",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "ai",
+    "markdown",
+    "concatenate",
+    "concatenation",
+    "files",
+    "merge",
+    "combine",
+    "chatgpt",
+    "llm",
+    "prompt",
+    "context-window"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "concatenate.explorerFiles",
+        "title": "Concatenate selected files"
+      },
+      {
+        "command": "concatenate.explorerFilesAsNewDocument",
+        "title": "Concatenate selected files as new document"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "concatenate.explorerFiles",
+          "when": "explorerResourceIsFolder == false && explorerResourceIsRoot == false && selectedItemsInExplorer",
+          "group": "concatenate"
+        },
+        {
+          "command": "concatenate.explorerFilesAsNewDocument",
+          "when": "explorerResourceIsFolder == false && explorerResourceIsRoot == false && selectedItemsInExplorer",
+          "group": "concatenate"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && npm run compile",
+    "compile": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -p ./",
+    "lint": "eslint \"src/**/*.ts\"",
+    "watch": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.14",
+    "@types/vscode": "1.98.0",
+    "@typescript-eslint/eslint-plugin": "8.28.0",
+    "@typescript-eslint/parser": "8.28.0",
+    "eslint": "9.23.0",
+    "typescript": "5.8.2"
+  }
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Concatenation content</title>
+        <style>
+            body.vscode-light {
+                color: black;
+            }
+            body.vscode-dark {
+                color: white;
+            }
+            form.actions {
+                padding-top: 20px;
+            }
+            .action-btn {
+                color: var(--vscode-button-foreground);
+                width: auto;
+                padding: 2px 14px;
+                border: none;
+                height: 30px;
+                background-color: var(--vscode-button-background);
+                font-size: 14px;
+                display: inline-block;
+                font-weight: 400;
+                text-align: center;
+                line-height: 1.4;
+                white-space: nowrap;
+                user-select: none;
+                vertical-align: middle;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                -webkit-user-select: none;
+                -o-user-select: none;
+            }
+            .action-btn:hover {
+                background-color: var(--vscode-button-hoverBackground);
+            }
+        </style>
+    </head>
+    <body>
+        <form class="actions">
+            <button class="action-btn" tabindex="0" role="button" type="button" onclick="copyOutput()">
+                Copy to clipboard
+            </button>
+        </form>
+        <pre id="output">###REPLACE_CONTENT###</pre>
+    </body>
+    <script>
+        function fallbackCopyMethod() {
+            const containerid = 'output';
+            const range = document.createRange();
+            range.selectNode(document.getElementById(containerid));
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand("copy");
+            window.getSelection().removeAllRanges();
+        }
+        function copyOutput() {
+            const text = document.getElementById('output').textContent;
+            // Use modern clipboard API with fallback
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).catch(err => {
+                    console.error('Could not copy text: ', err);
+                    fallbackCopyMethod();
+                });
+            } else {
+                fallbackCopyMethod();
+            }
+        }
+    </script>
+</html>

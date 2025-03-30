@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "rootDir": "src",
+        "module": "NodeNext",
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM"],
+        "outDir": "out",
+        "sourceMap": true,
+        "esModuleInterop": true
+    },
+    "exclude": ["node_modules", ".vscode-test"]
+}
