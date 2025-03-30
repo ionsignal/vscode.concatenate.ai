@@ -4,7 +4,7 @@
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
   "version": "0.0.7",
-  "publisher": "neutrino84",
+  "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
     "url": "https://github.com/neutrino84/vscode.concatenate.ai/issues"
