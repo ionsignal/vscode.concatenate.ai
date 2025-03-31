@@ -1,83 +1,39 @@
-import * as fs from 'fs'
+import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as vscode from 'vscode'
+import { concatenateFiles } from './helpers'
+import type { ConcatenationResult } from './types'
 
-// operations succeed/fail
-interface Result<T> {
-  success: boolean
-  value?: T
-  error?: Error
-}
-
-// concatenation results
-interface ConcatenationResult extends Result<string> {
-  fileCount: number
-}
-
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   /**
-   * Simple concat files in a new document
+   * Show concat final status message
    */
-  const concatenateFiles = (files: vscode.Uri[]): ConcatenationResult => {
-    try {
-      if (!files.length) {
-        return {
-          success: false,
-          error: new Error('No files selected'),
-          fileCount: 0,
-        }
-      }
-      const concatenatedContent: string[] = []
-      files.forEach(fileUri => {
-        try {
-          const filePath = fileUri.fsPath // More reliable than .path
-          const fileContent = fs.readFileSync(filePath, 'utf8')
-          const fileExtension = path.extname(filePath).substring(1)
-          concatenatedContent.push(`File: ${filePath}`)
-          concatenatedContent.push(`\`\`\`${fileExtension}`)
-          concatenatedContent.push(fileContent)
-          concatenatedContent.push('```')
-        } catch (err) {
-          // Handle individual file errors but continue processing
-          concatenatedContent.push(`File: ${fileUri.fsPath}`)
-          concatenatedContent.push(`\`\`\`error`)
-          concatenatedContent.push(
-            `Error reading file: ${err instanceof Error ? err.message : String(err)}`
-          )
-          concatenatedContent.push('```')
-        }
-      })
-      return {
-        success: true,
-        value: concatenatedContent.join('\n\n'),
-        fileCount: files.length,
-      }
-    } catch (err) {
-      return {
-        success: false,
-        error: err instanceof Error ? err : new Error(String(err)),
-        fileCount: 0,
-      }
-    }
+  const showMessage = (result: ConcatenationResult) => {
+    if (result.fileCount == result.successfulFileCount)
+      vscode.window.showInformationMessage(
+        `Successfully concatenated ${result.successfulFileCount} files!`
+      )
+    else
+      vscode.window.showWarningMessage(
+        `Failed to concatenate ${result.fileCount - result.successfulFileCount} files!`
+      )
   }
 
   /**
-   * Displays concatenated files in a WebView with copy functionality
+   * displays concatenated files in a WebView with copy
+   * to clipboard button functionality
    */
   const concatenateExplorerFiles = async (
-    _unusedUri: vscode.Uri, // Prefix with underscore to indicate it's unused
+    _unusedUri: vscode.Uri,
     selectedFiles: vscode.Uri[]
   ): Promise<void> => {
-    const result = concatenateFiles(selectedFiles)
-
+    const result = await concatenateFiles(selectedFiles)
     if (!result.success || !result.value) {
       vscode.window.showErrorMessage(
         `Concatenation failed: ${result.error?.message || 'Unknown error'}`
       )
       return
     }
-
-    // Create webview panel
     const vscodeWebViewOutputTab = vscode.window.createWebviewPanel(
       'concatenatedFiles',
       `Concatenated Files (${result.fileCount})`,
@@ -88,10 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
       const htmlTemplatePath = context.asAbsolutePath(path.join('out', 'webview.html'))
       const uri = vscode.Uri.file(htmlTemplatePath)
       const pathUri = uri.with({ scheme: 'vscode-resource' })
-      const htmlTemplate = fs.readFileSync(pathUri.fsPath, 'utf8')
+      const htmlTemplate = await fs.readFile(pathUri.fsPath, 'utf8')
       const finalHtml = htmlTemplate.replace('###REPLACE_CONTENT###', result.value)
       vscodeWebViewOutputTab.webview.html = finalHtml
-      vscode.window.showInformationMessage(`Successfully concatenated ${result.fileCount} files!`)
+      showMessage(result)
     } catch (err) {
       vscode.window.showErrorMessage(
         `Failed to create webview: ${err instanceof Error ? err.message : String(err)}`
@@ -106,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
     _unusedUri: vscode.Uri,
     selectedFiles: vscode.Uri[]
   ): Promise<void> => {
-    const result = concatenateFiles(selectedFiles)
+    const result = await concatenateFiles(selectedFiles)
     if (!result.success || !result.value) {
       vscode.window.showErrorMessage(
         `Concatenation failed: ${result.error?.message || 'Unknown error'}`
@@ -116,10 +72,10 @@ export function activate(context: vscode.ExtensionContext) {
     try {
       const document = await vscode.workspace.openTextDocument({
         content: result.value,
-        language: 'markdown', // Set language mode to markdown for proper syntax highlighting
+        language: 'markdown',
       })
       await vscode.window.showTextDocument(document)
-      vscode.window.showInformationMessage(`Successfully concatenated ${result.fileCount} files!`)
+      showMessage(result)
     } catch (err) {
       vscode.window.showErrorMessage(
         `Failed to create document: ${err instanceof Error ? err.message : String(err)}`

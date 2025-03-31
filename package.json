@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
@@ -44,6 +44,17 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Concatenate for AI Settings",
+      "properties": {
+        "concatenate.prependFileHierarchy": {
+          "type": "boolean",
+          "default": false,
+          "description": "If enabled, prepend a full file hierarchy of the related root directory.",
+          "scope": "resource"
+        }
+      }
+    },
     "commands": [
       {
         "command": "concatenate.explorerFiles",
@@ -78,9 +89,10 @@
   "devDependencies": {
     "@types/node": "22.13.14",
     "@types/vscode": "1.98.0",
-    "@typescript-eslint/eslint-plugin": "8.28.0",
-    "@typescript-eslint/parser": "8.28.0",
+    "@typescript-eslint/eslint-plugin": "8.29.0",
+    "@typescript-eslint/parser": "8.29.0",
     "eslint": "9.23.0",
+    "ignore": "^7.0.3",
     "typescript": "5.8.2"
   }
 }
