@@ -82,10 +82,11 @@
   },
   "scripts": {
     "build:package": "vsce package",
-    "vscode:prepublish": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && npm run compile",
-    "compile": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -p ./",
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run clean && mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -p ./",
+    "watch": "npm run clean && mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -watch -p ./",
     "lint": "eslint \"src/**/*.ts\"",
-    "watch": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -watch -p ./"
+    "clean": "rimraf ./out"
   },
   "devDependencies": {
     "@types/node": "22.13.14",
@@ -94,6 +95,7 @@
     "@typescript-eslint/parser": "8.29.0",
     "eslint": "9.23.0",
     "ignore": "^7.0.3",
+    "rimraf": "^6.0.1",
     "typescript": "5.8.2"
   }
 }
