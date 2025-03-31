@@ -81,6 +81,7 @@
     }
   },
   "scripts": {
+    "build:package": "vsce package",
     "vscode:prepublish": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && npm run compile",
     "compile": "mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -p ./",
     "lint": "eslint \"src/**/*.ts\"",
