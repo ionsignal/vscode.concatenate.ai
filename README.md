@@ -12,7 +12,7 @@ Working with Large Language Models (LLMs) often requires providing multiple code
 
 ## Features
 
-### ✨ Two Convenient Output Options
+### Two Convenient Output Options
 
 1. **Concatenate to Viewer** - Generates formatted output in a dedicated viewer with one-click copy functionality
 2. **Concatenate to New Document** - Creates a new unsaved document with all your selected files properly formatted
