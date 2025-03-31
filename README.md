@@ -27,7 +27,7 @@ Working with Large Language Models (LLMs) often requires providing multiple code
 
 ## Output Format
 
-Files are concatenated with proper Markdown code fencing and language detection:
+Files are concatenated with proper Markdown code fencing and language detection.
 
 ## Feedback & Contributions
 
