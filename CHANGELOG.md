@@ -2,6 +2,18 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.1.0] - 2025-4-1
+
+### Fixed
+
+- **Critical Packaging Bug:** Resolved an issue where the extension failed to load correctly when installed from the `.vsix` package (often resulting in "command not found" errors). This was caused by the `ignore` package (needed for `.gitignore` handling in the File Hierarchy feature) not being bundled into the extension package due to an incorrect `.vscodeignore` setting. The commands should now work reliably after installation
+
+### Maintenance
+
+- **Dependencies:**
+    - Updated development dependencies: `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`, `eslint`
+    - Added the `ignore` package dependency to handle `.gitignore` parsing for the file hierarchy feature
+
 ## [0.0.9] - 2025-3-31
 
 ### Added
