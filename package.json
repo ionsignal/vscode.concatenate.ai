@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
@@ -88,13 +88,15 @@
     "lint": "eslint \"src/**/*.ts\"",
     "clean": "rimraf ./out"
   },
+  "dependencies": {
+    "ignore": "^7.0.3"
+  },
   "devDependencies": {
-    "@types/node": "22.13.14",
+    "@types/node": "22.13.16",
     "@types/vscode": "1.98.0",
     "@typescript-eslint/eslint-plugin": "8.29.0",
     "@typescript-eslint/parser": "8.29.0",
     "eslint": "9.23.0",
-    "ignore": "^7.0.3",
     "rimraf": "^6.0.1",
     "typescript": "5.8.2"
   }
