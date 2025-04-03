@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
@@ -19,6 +19,7 @@
     "email": "neutrino84@gmail.com",
     "url": "https://ionsignal.com"
   },
+  "pricing": "Free",
   "engines": {
     "vscode": "^1.98.0"
   },

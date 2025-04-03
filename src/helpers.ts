@@ -93,39 +93,55 @@ export const concatenateFiles = async (files: vscode.Uri[]): Promise<Concatenati
   concatenatedContent.push(directoryTreeContent || '')
 
   // extract file content
-  let successfulFileCount = 0
-  const results = await Promise.allSettled(
-    files.map(async fileUri => {
-      const filePath = fileUri.fsPath
-      try {
-        const fileContent = await fs.readFile(filePath, 'utf8')
-        const fileExtension = path.extname(filePath).substring(1)
-        successfulFileCount++
-        return [`File: ${filePath}`, `\`\`\`${fileExtension}`, fileContent, '```'].join('\n')
-      } catch (err) {
-        const errorMessage = `Error reading file: ${
-          err instanceof Error ? err.message : String(err)
-        }`
-        return [`File: ${filePath}`, `\`\`\`error`, errorMessage, '```'].join('\n')
+  let successfulFileReadCount = 0
+  const fileProcessingPromises = files.map(async fileUri => {
+    const filePath = fileUri.fsPath
+    try {
+      const fileContent = await fs.readFile(filePath, 'utf8')
+      const fileExtension = path.extname(filePath).substring(1)
+      if (fileContent.trim() === '') {
+        return { success: true, content: [`File: ${filePath}`, `(empty file)`].join('\n') }
+      } else {
+        return {
+          success: true,
+          content: [`File: ${filePath}`, `\`\`\`${fileExtension}`, fileContent, '```'].join('\n'),
+        }
       }
-    })
-  )
+    } catch (err) {
+      const errorMessage = `Error reading file: ${err instanceof Error ? err.message : String(err)}`
+      return {
+        success: false,
+        content: [`File: ${filePath}`, `\`\`\`error`, errorMessage, '```'].join('\n'),
+      }
+    }
+  })
+
+  const results = await Promise.allSettled(fileProcessingPromises)
 
   // process and add results to content
   results.forEach(result => {
     if (result.status === 'fulfilled') {
-      concatenatedContent.push(result.value)
+      // Push the formatted content (could be success, empty, or error format from the map)
+      concatenatedContent.push(result.value.content)
+      // Increment success count only if the file read operation itself was successful
+      if (result.value.success) {
+        successfulFileReadCount++
+      }
     } else {
+      // This case handles unexpected errors *within the map function's promise itself*,
+      // which is less likely given the try/catch inside, but good practice to keep.
       concatenatedContent.push(
-        `\`\`\`error\nUnexpected error during processing: ${result.reason}\n\`\`\``
+        `\`\`\`error\nUnexpected error during file processing: ${result.reason}\n\`\`\``
       )
     }
   })
 
+  const overallSuccess = successfulFileReadCount > 0 || files.length === 0
+  const output = concatenatedContent.join('\n\n')
   return {
-    success: true,
-    value: concatenatedContent.join('\n\n'),
+    success: overallSuccess,
+    value: output,
     fileCount: files.length,
-    successfulFileCount: successfulFileCount,
+    successfulFileCount: successfulFileReadCount,
   }
 }

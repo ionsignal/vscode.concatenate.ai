@@ -2,6 +2,17 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.1.1] - 2025-4-3
+
+### Added
+
+-   Distinct formatting `(empty file)` for files that are empty or contain only whitespace during concatenation, replacing the standard code block
+-   Added `pricing` information to `package.json` for marketplace clarity
+
+### Changed
+
+-   Improved logic for counting successfully processed files to correctly include empty files while excluding files that failed to read
+
 ## [0.1.0] - 2025-4-1
 
 ### Fixed
