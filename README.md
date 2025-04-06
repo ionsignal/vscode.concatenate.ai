@@ -2,6 +2,12 @@
 
 A powerful VS Code extension that makes it easy to bundle multiple files into a single formatted document, optimized for use with AI tools like Google Gemini 2.5, ChatGPT, Claude, and other large language models (LLMs).
 
+<p align="center">
+  <video src="./demo.webm" autoplay loop muted playsinline width="100%">
+    Your browser does not support the video tag.
+  </video>
+</p>
+
 ## Why You Need This
 
 Working with Large Language Models (LLMs) often requires providing multiple code files for context. This extension solves common challenges:
