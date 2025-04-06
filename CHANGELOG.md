@@ -2,6 +2,19 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.1.5] - 2025-4-6
+
+### Removed
+- Removed "Concatenate to Viewer" output option and associated demo video  
+- Streamlined user interface by consolidating to single output method  
+
+### Changed
+**Dependency Updates**  
+- Updated minimum VS Code requirement to v1.99.0  
+
+# Fixed
+- Added clean step to prepublish script for more reliable builds   
+
 ## [0.1.4] - 2025-4-6
 
 ### Removed

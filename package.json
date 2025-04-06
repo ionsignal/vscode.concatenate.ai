@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
@@ -21,7 +21,7 @@
   },
   "pricing": "Free",
   "engines": {
-    "vscode": "^1.98.0"
+    "vscode": "^1.99.0"
   },
   "icon": "images/icon.png",
   "categories": [
@@ -74,7 +74,7 @@
   },
   "scripts": {
     "build:package": "vsce package",
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run clean && npm run compile && ",
     "compile": "npm run clean && mkdir -p ./out/ && tsc -p ./",
     "watch": "npm run clean && mkdir -p ./out/ && tsc -watch -p ./",
     "lint": "eslint \"src/**/*.ts\"",
