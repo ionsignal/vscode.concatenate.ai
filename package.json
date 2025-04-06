@@ -74,7 +74,7 @@
   },
   "scripts": {
     "build:package": "vsce package",
-    "vscode:prepublish": "npm run clean && npm run compile && ",
+    "vscode:prepublish": "npm run clean && npm run compile",
     "compile": "npm run clean && mkdir -p ./out/ && tsc -p ./",
     "watch": "npm run clean && mkdir -p ./out/ && tsc -watch -p ./",
     "lint": "eslint \"src/**/*.ts\"",
