@@ -5,6 +5,18 @@ import { TreeGenerator } from './treeGenerator'
 import type { ConcatenationResult } from './types'
 
 /**
+ * Escape for use in html template
+ */
+const escapeContent = (content: string): string => {
+  return content
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
+/**
  * finds the workspace folder that contains the selected files,
  * if all reside within a single workspace folder
  */
@@ -122,7 +134,7 @@ export const concatenateFiles = async (files: vscode.Uri[]): Promise<Concatenati
   results.forEach(result => {
     if (result.status === 'fulfilled') {
       // Push the formatted content (could be success, empty, or error format from the map)
-      concatenatedContent.push(result.value.content)
+      concatenatedContent.push(escapeContent(result.value.content))
       // Increment success count only if the file read operation itself was successful
       if (result.value.success) {
         successfulFileReadCount++

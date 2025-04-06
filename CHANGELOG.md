@@ -2,6 +2,12 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.1.2] - 2025-4-6
+
+### Fixed
+
+-   Implemented HTML entity escaping for the content of each processed file, including its header and code fence wrappers. This ensures that such characters are displayed literally and safely, preventing rendering errors in the webview and maintaining the integrity of the output when saved as a new document.
+
 ## [0.1.1] - 2025-4-3
 
 ### Added
