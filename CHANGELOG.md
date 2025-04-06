@@ -2,6 +2,12 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.1.3] - 2025-4-6
+
+### Docs
+
+-   Added demo animation to README.md
+
 ## [0.1.2] - 2025-4-6
 
 ### Fixed
