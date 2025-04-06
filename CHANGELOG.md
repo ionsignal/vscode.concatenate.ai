@@ -2,6 +2,34 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.1.4] - 2025-4-6
+
+### Removed
+- WebView-based output panel functionality including:
+  - WebView HTML template and associated CSS/JS
+  - File escaping logic for HTML rendering
+  - Clipboard integration through WebView UI
+- Legacy `concatenate.explorerFiles` command from:
+  - Command palette registry
+  - Explorer context menu
+  - Extension activation logic
+- Deprecated file copy operations from build scripts
+
+### Changed
+- **Dependency Updates**:
+  - @types/node 22.13.16 → 22.14.0
+  - @types/vscode 1.98.0 → 1.99.0
+  - eslint 9.23.0 → 9.24.0
+  - typescript 5.8.2 → 5.8.3
+- Simplified content handling:
+  - Removed HTML escaping from concatenation pipeline
+  - Streamlined file processing logic
+
+### Fixed
+- Build process optimizations:
+  - Removed unnecessary asset copying during compilation
+  - Improved TypeScript compilation efficiency
+
 ## [0.1.3] - 2025-4-6
 
 ### Docs

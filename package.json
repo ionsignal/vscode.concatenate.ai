@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
@@ -58,21 +58,12 @@
     },
     "commands": [
       {
-        "command": "concatenate.explorerFiles",
-        "title": "Concatenate selected files"
-      },
-      {
         "command": "concatenate.explorerFilesAsNewDocument",
         "title": "Concatenate selected files as new document"
       }
     ],
     "menus": {
       "explorer/context": [
-        {
-          "command": "concatenate.explorerFiles",
-          "when": "explorerResourceIsFolder == false",
-          "group": "concatenate"
-        },
         {
           "command": "concatenate.explorerFilesAsNewDocument",
           "when": "explorerResourceIsFolder == false",
@@ -84,8 +75,8 @@
   "scripts": {
     "build:package": "vsce package",
     "vscode:prepublish": "npm run compile",
-    "compile": "npm run clean && mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -p ./",
-    "watch": "npm run clean && mkdir -p ./out/ && cp ./src/webview.html ./out/ && tsc -watch -p ./",
+    "compile": "npm run clean && mkdir -p ./out/ && tsc -p ./",
+    "watch": "npm run clean && mkdir -p ./out/ && tsc -watch -p ./",
     "lint": "eslint \"src/**/*.ts\"",
     "clean": "rimraf ./out"
   },
@@ -93,12 +84,12 @@
     "ignore": "^7.0.3"
   },
   "devDependencies": {
-    "@types/node": "22.13.16",
-    "@types/vscode": "1.98.0",
+    "@types/node": "22.14.0",
+    "@types/vscode": "1.99.0",
     "@typescript-eslint/eslint-plugin": "8.29.0",
     "@typescript-eslint/parser": "8.29.0",
-    "eslint": "9.23.0",
+    "eslint": "9.24.0",
     "rimraf": "^6.0.1",
-    "typescript": "5.8.2"
+    "typescript": "5.8.3"
   }
 }
