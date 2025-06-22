@@ -1,8 +1,75 @@
-import * as fs from 'fs/promises'
-import * as path from 'path'
+import * as fs from 'node:fs/promises'
+import * as path from 'node:path'
 import * as vscode from 'vscode'
+import ignore, { type Ignore } from 'ignore'
 import { TreeGenerator } from './treeGenerator'
 import type { ConcatenationResult } from './types'
+
+/**
+ * Recursively finds all files in a directory that match the allowed extensions, respecting .gitignore files.
+ * @param directoryUri The URI of the directory to search.
+ * @param parentIg The ignore instance from the parent directory.
+ * @param allowedExtensions A Set of allowed file extensions (without the dot).
+ * @returns A promise that resolves to an array of file URIs.
+ */
+const getUrisInDirectoryRecursive = async (
+  directoryUri: vscode.Uri,
+  parentIg: Ignore,
+  allowedExtensions: Set<string>
+): Promise<vscode.Uri[]> => {
+  const currentIg = ignore().add(parentIg)
+  const currentGitignoreUri = vscode.Uri.joinPath(directoryUri, '.gitignore')
+  try {
+    const gitignoreContent = await vscode.workspace.fs.readFile(currentGitignoreUri)
+    currentIg.add(Buffer.from(gitignoreContent).toString('utf8'))
+  } catch (error) {
+    // Ignore if .gitignore doesn't exist.
+  }
+
+  let entries: [string, vscode.FileType][] = []
+  try {
+    entries = await vscode.workspace.fs.readDirectory(directoryUri)
+  } catch (error) {
+    vscode.window.showWarningMessage(`Could not read directory: ${directoryUri.fsPath}`)
+    return []
+  }
+
+  const allFileUris: vscode.Uri[] = []
+
+  const filteredEntries = entries.filter(([name, type]) => {
+    const relativePath = name
+    const isIgnored =
+      currentIg.ignores(relativePath) ||
+      (type === vscode.FileType.Directory && currentIg.ignores(`${relativePath}/`))
+    return !isIgnored
+  })
+
+  for (const [name, type] of filteredEntries) {
+    const entryUri = vscode.Uri.joinPath(directoryUri, name)
+    if (type === vscode.FileType.Directory) {
+      const nestedFiles = await getUrisInDirectoryRecursive(entryUri, currentIg, allowedExtensions)
+      allFileUris.push(...nestedFiles)
+    } else if (type === vscode.FileType.File) {
+      const extension = path.extname(name).substring(1).toLowerCase()
+      if (allowedExtensions.has(extension)) {
+        allFileUris.push(entryUri)
+      }
+    }
+  }
+
+  return allFileUris
+}
+
+/**
+ * Gets all file URIs within a directory, filtered by settings and .gitignore.
+ */
+export const getAllFilesInDirectory = async (directoryUri: vscode.Uri): Promise<vscode.Uri[]> => {
+  const config = vscode.workspace.getConfiguration('concatenate')
+  const extensions = config.get<string[]>('recursiveSearchFileExtensions', ['mdx', 'ts', 'js'])
+  const allowedExtensions = new Set(extensions.map(ext => ext.toLowerCase()))
+  const rootIg = ignore().add('.git') // Always ignore .git
+  return getUrisInDirectoryRecursive(directoryUri, rootIg, allowedExtensions)
+}
 
 /**
  * finds the workspace folder that contains the selected files,

@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Concatenates selected files for use with AI",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "publisher": "IonSignal",
   "homepage": "https://github.com/neutrino84/vscode.concatenate.ai.git",
   "bugs": {
@@ -21,7 +21,7 @@
   },
   "pricing": "Free",
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": "^1.101.0"
   },
   "icon": "images/icon.png",
   "categories": [
@@ -53,6 +53,19 @@
           "default": false,
           "description": "If enabled, prepend a full file hierarchy of the related root directory.",
           "scope": "resource"
+        },
+        "concatenate.recursiveSearchFileExtensions": {
+          "type": "array",
+          "default": [
+            "mdx",
+            "ts",
+            "js"
+          ],
+          "description": "An array of file extensions to include when recursively concatenating files from a directory (e.g., [\"ts\", \"js\"]).",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -60,6 +73,10 @@
       {
         "command": "concatenate.explorerFilesAsNewDocument",
         "title": "Concatenate selected files as new document"
+      },
+      {
+        "command": "concatenate.explorerDirectoryAsNewDocument",
+        "title": "Concatenate files in folder as new document"
       }
     ],
     "menus": {
@@ -67,6 +84,11 @@
         {
           "command": "concatenate.explorerFilesAsNewDocument",
           "when": "explorerResourceIsFolder == false",
+          "group": "concatenate"
+        },
+        {
+          "command": "concatenate.explorerDirectoryAsNewDocument",
+          "when": "explorerResourceIsFolder == true",
           "group": "concatenate"
         }
       ]
@@ -81,14 +103,15 @@
     "clean": "rimraf ./out"
   },
   "dependencies": {
-    "ignore": "^7.0.3"
+    "ignore": "^7.0.5"
   },
   "devDependencies": {
-    "@types/node": "22.14.0",
-    "@types/vscode": "1.99.0",
-    "@typescript-eslint/eslint-plugin": "8.29.0",
-    "@typescript-eslint/parser": "8.29.0",
-    "eslint": "9.24.0",
+    "@types/node": "24.0.3",
+    "@types/vscode": "1.101.0",
+    "@typescript-eslint/eslint-plugin": "8.34.1",
+    "@typescript-eslint/parser": "8.34.1",
+    "@vscode/vsce": "^3.5.0",
+    "eslint": "9.29.0",
     "rimraf": "^6.0.1",
     "typescript": "5.8.3"
   }

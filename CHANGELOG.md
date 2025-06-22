@@ -2,6 +2,15 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.2.0] - 2025-6-20
+
+### Added
+- **Recursive Folder Concatenation**: New command `Concatenate files in folder as new document` available on the folder context menu. This command recursively finds all files within the selected folder(s), respecting `.gitignore` rules, and concatenates them.
+- **Configuration for File Types**: Added a new setting `concatenate.recursiveSearchFileExtensions` (defaulting to `['mdx', 'ts', 'js']`) to control which file extensions are included during a recursive folder search.
+
+### Changed
+- The command for concatenating folders can handle a selection of multiple folders at once, de-duplicating and sorting the final file list.
+
 ## [0.1.5] - 2025-4-6
 
 ### Removed
@@ -9,8 +18,8 @@ All notable changes to the "Concatenate for AI" extension will be documented in 
 - Streamlined user interface by consolidating to single output method  
 
 ### Changed
-**Dependency Updates**  
-- Updated minimum VS Code requirement to v1.99.0  
+- **Dependency Updates**  
+  - Updated minimum VS Code requirement to v1.99.0  
 
 # Fixed
 - Added clean step to prepublish script for more reliable builds   

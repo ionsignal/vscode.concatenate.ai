@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { concatenateFiles } from './helpers'
+import { concatenateFiles, getAllFilesInDirectory } from './helpers'
 import type { ConcatenationResult } from './types'
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -51,6 +51,50 @@ export async function activate(context: vscode.ExtensionContext) {
       'concatenate.explorerFilesAsNewDocument',
       (uri: vscode.Uri, selectedUris: vscode.Uri[]) =>
         concatenateExplorerFilesAsNewDocument(uri, selectedUris)
+    )
+  )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'concatenate.explorerDirectoryAsNewDocument',
+      async (_uri: vscode.Uri, selectedUris: vscode.Uri[]) => {
+        // Find all directories in the selection
+        const statPromises = selectedUris.map(async u => ({
+          uri: u,
+          isDirectory: (await vscode.workspace.fs.stat(u)).type === vscode.FileType.Directory,
+        }))
+        const resolvedUris = await Promise.all(statPromises)
+        const folderUris = resolvedUris.filter(item => item.isDirectory).map(item => item.uri)
+
+        if (folderUris.length === 0) {
+          vscode.window.showInformationMessage('No directories selected.')
+          return
+        }
+
+        // Get all files from all selected directories
+        let allFileUris: vscode.Uri[] = []
+        for (const folderUri of folderUris) {
+          const filesInFolder = await getAllFilesInDirectory(folderUri)
+          allFileUris.push(...filesInFolder)
+        }
+
+        if (allFileUris.length === 0) {
+          vscode.window.showInformationMessage(
+            'No files found matching the configured extensions in the selected directories.'
+          )
+          return
+        }
+
+        // Remove duplicates that might occur if a folder is selected inside another selected folder
+        const uniqueFileUris = [...new Map(allFileUris.map(item => [item.fsPath, item])).values()]
+
+        // Sort files by path for consistent output
+        uniqueFileUris.sort((a, b) => a.fsPath.localeCompare(b.fsPath))
+
+        // We can reuse the main concatenation logic.
+        // We need a URI for the first argument, let's use the first folder.
+        await concatenateExplorerFilesAsNewDocument(folderUris[0], uniqueFileUris)
+      }
     )
   )
 }
