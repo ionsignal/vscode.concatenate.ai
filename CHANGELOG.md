@@ -2,6 +2,12 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.2.1] - 2025-06-21
+
+### Fixed
+- **Corrected Recursive `.gitignore` Parsing**: Fixed a critical bug where `.gitignore` rules in a subdirectory would incorrectly apply to its parent or sibling directories. The ignore logic now correctly scopes rules to their respective directories, ensuring that file searches and hierarchy generation accurately reflect the behavior of `git`.
+- Improved path handling for ignore rules to ensure cross-platform compatibility.
+
 ## [0.2.0] - 2025-6-20
 
 ### Added

@@ -1,5 +1,5 @@
-import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
+import { posix as posixPath } from 'path' // Use POSIX for ignore paths
 import * as vscode from 'vscode'
 import ignore, { type Ignore } from 'ignore'
 import { TreeGenerator } from './treeGenerator'
@@ -8,12 +8,14 @@ import type { ConcatenationResult } from './types'
 /**
  * Recursively finds all files in a directory that match the allowed extensions, respecting .gitignore files.
  * @param directoryUri The URI of the directory to search.
+ * @param relativeBasePath
  * @param parentIg The ignore instance from the parent directory.
  * @param allowedExtensions A Set of allowed file extensions (without the dot).
  * @returns A promise that resolves to an array of file URIs.
  */
 const getUrisInDirectoryRecursive = async (
   directoryUri: vscode.Uri,
+  relativeBasePath: string,
   parentIg: Ignore,
   allowedExtensions: Set<string>
 ): Promise<vscode.Uri[]> => {
@@ -23,7 +25,13 @@ const getUrisInDirectoryRecursive = async (
     const gitignoreContent = await vscode.workspace.fs.readFile(currentGitignoreUri)
     currentIg.add(Buffer.from(gitignoreContent).toString('utf8'))
   } catch (error) {
-    // Ignore if .gitignore doesn't exist.
+    if (!(error instanceof vscode.FileSystemError && error.code === 'FileNotFound')) {
+      vscode.window.showWarningMessage(
+        `Could not read .gitignore in ${directoryUri.fsPath}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      )
+    }
   }
 
   let entries: [string, vscode.FileType][] = []
@@ -35,19 +43,22 @@ const getUrisInDirectoryRecursive = async (
   }
 
   const allFileUris: vscode.Uri[] = []
-
-  const filteredEntries = entries.filter(([name, type]) => {
-    const relativePath = name
+  for (const [name, type] of entries) {
+    const entryRelativePath = posixPath.join(relativeBasePath, name)
     const isIgnored =
-      currentIg.ignores(relativePath) ||
-      (type === vscode.FileType.Directory && currentIg.ignores(`${relativePath}/`))
-    return !isIgnored
-  })
-
-  for (const [name, type] of filteredEntries) {
+      currentIg.ignores(entryRelativePath) ||
+      (type === vscode.FileType.Directory && currentIg.ignores(`${entryRelativePath}/`))
+    if (isIgnored) {
+      continue
+    }
     const entryUri = vscode.Uri.joinPath(directoryUri, name)
     if (type === vscode.FileType.Directory) {
-      const nestedFiles = await getUrisInDirectoryRecursive(entryUri, currentIg, allowedExtensions)
+      const nestedFiles = await getUrisInDirectoryRecursive(
+        entryUri,
+        entryRelativePath,
+        currentIg,
+        allowedExtensions
+      )
       allFileUris.push(...nestedFiles)
     } else if (type === vscode.FileType.File) {
       const extension = path.extname(name).substring(1).toLowerCase()
@@ -56,7 +67,6 @@ const getUrisInDirectoryRecursive = async (
       }
     }
   }
-
   return allFileUris
 }
 
@@ -68,48 +78,40 @@ export const getAllFilesInDirectory = async (directoryUri: vscode.Uri): Promise<
   const extensions = config.get<string[]>('recursiveSearchFileExtensions', ['mdx', 'ts', 'js'])
   const allowedExtensions = new Set(extensions.map(ext => ext.toLowerCase()))
   const rootIg = ignore().add('.git') // Always ignore .git
-  return getUrisInDirectoryRecursive(directoryUri, rootIg, allowedExtensions)
+  return getUrisInDirectoryRecursive(directoryUri, '', rootIg, allowedExtensions)
 }
 
 /**
- * finds the workspace folder that contains the selected files,
- * if all reside within a single workspace folder
+ * Finds the deepest common directory path for a given array of file URIs.
+ * @param uris An array of file URIs.
+ * @returns A vscode.Uri representing the common base path, or undefined if no common path is found.
  */
-async function findWorkspaceBaseUriForTree(files: vscode.Uri[]): Promise<vscode.Uri | undefined> {
-  const workspaceFolders = vscode.workspace.workspaceFolders
-  if (!workspaceFolders || workspaceFolders.length === 0) {
+function findCommonBasePath(uris: vscode.Uri[]): vscode.Uri | undefined {
+  if (!uris || uris.length === 0) {
     return undefined
   }
-  const containingFolders = new Set<vscode.WorkspaceFolder>()
-  let fileFoundInWorkspace = false
-  for (const fileUri of files) {
-    let foundContainer = false
-    for (const wf of workspaceFolders) {
-      const relativePath = path.relative(wf.uri.fsPath, fileUri.fsPath)
-      if (relativePath && !relativePath.startsWith('..') && !path.isAbsolute(relativePath)) {
-        containingFolders.add(wf)
-        foundContainer = true
-        fileFoundInWorkspace = true
-        break
-      }
+  if (uris.length === 1) {
+    return vscode.Uri.joinPath(uris[0], '..')
+  }
+  const paths = uris.map(uri => uri.fsPath.split(path.sep))
+  let commonPathComponents = paths[0]
+  for (let i = 1; i < paths.length; i++) {
+    const currentPathComponents = paths[i]
+    let j = 0
+    while (
+      j < commonPathComponents.length &&
+      j < currentPathComponents.length &&
+      commonPathComponents[j] === currentPathComponents[j]
+    ) {
+      j++
     }
+    commonPathComponents = commonPathComponents.slice(0, j)
   }
-  if (containingFolders.size === 1) {
-    // get root workspace folder URI
-    return containingFolders.values().next().value?.uri || undefined
-  } else if (containingFolders.size > 1) {
-    vscode.window.showWarningMessage(
-      'Selected files span multiple workspace folders. Cannot determine a single root for hierarchy.'
-    )
-    return undefined
-  } else {
-    if (files.length > 0 && !fileFoundInWorkspace) {
-      vscode.window.showWarningMessage(
-        'Selected files are not part of an open workspace folder. Cannot generate hierarchy.'
-      )
-    }
+  if (commonPathComponents.length === 0) {
     return undefined
   }
+  const commonPathString = commonPathComponents.join(path.sep)
+  return vscode.Uri.file(commonPathString)
 }
 
 /**
@@ -117,17 +119,15 @@ async function findWorkspaceBaseUriForTree(files: vscode.Uri[]): Promise<vscode.
  */
 export const generateHierarchyIfEnabled = async (files: vscode.Uri[]): Promise<string | null> => {
   const config = vscode.workspace.getConfiguration('concatenate')
-  const shouldPrependHierarchy = config.get<boolean>('prependFileHierarchy', true)
+  const shouldPrependHierarchy = config.get<boolean>('prependFileHierarchy', false)
   if (!shouldPrependHierarchy || files.length === 0) {
     return null
   }
-  const commonBaseUri = await findWorkspaceBaseUriForTree(files)
-  if (commonBaseUri)
+  const commonBaseUri = findCommonBasePath(files)
+  if (commonBaseUri) {
     try {
       const hierarchyString = await TreeGenerator.generateAsciiTree(commonBaseUri)
-      return `File Hierarchy (from ${path.basename(
-        commonBaseUri.fsPath
-      )}):\n${hierarchyString}\n\n---\n`
+      return `File Hierarchy (from ${path.basename(commonBaseUri.fsPath)}):\n${hierarchyString}`
     } catch (error) {
       vscode.window.showErrorMessage(
         `Failed to generate file hierarchy: ${
@@ -136,7 +136,12 @@ export const generateHierarchyIfEnabled = async (files: vscode.Uri[]): Promise<s
       )
       return null
     }
-  else return null
+  } else {
+    vscode.window.showWarningMessage(
+      'Could not determine a common base directory for the selected files to generate a hierarchy.'
+    )
+    return null
+  }
 }
 
 /**
@@ -157,28 +162,32 @@ export const concatenateFiles = async (files: vscode.Uri[]): Promise<Concatenati
 
   // process and add directory tree to content
   const directoryTreeContent = await generateHierarchyIfEnabled(files)
-  concatenatedContent.push(directoryTreeContent || '')
+  if (directoryTreeContent) {
+    concatenatedContent.push(directoryTreeContent)
+  }
 
   // extract file content
   let successfulFileReadCount = 0
   const fileProcessingPromises = files.map(async fileUri => {
-    const filePath = fileUri.fsPath
     try {
-      const fileContent = await fs.readFile(filePath, 'utf8')
-      const fileExtension = path.extname(filePath).substring(1)
+      const fileContentUint8Array = await vscode.workspace.fs.readFile(fileUri)
+      const fileContent = Buffer.from(fileContentUint8Array).toString('utf8')
+      const fileExtension = path.extname(fileUri.fsPath).substring(1)
       if (fileContent.trim() === '') {
-        return { success: true, content: [`File: ${filePath}`, `(empty file)`].join('\n') }
+        return { success: true, content: [`File: ${fileUri.fsPath}`, `(empty file)`].join('\n') }
       } else {
         return {
           success: true,
-          content: [`File: ${filePath}`, `\`\`\`${fileExtension}`, fileContent, '```'].join('\n'),
+          content: [`File: ${fileUri.fsPath}`, `\`\`\`${fileExtension}`, fileContent, '```'].join(
+            '\n'
+          ),
         }
       }
     } catch (err) {
       const errorMessage = `Error reading file: ${err instanceof Error ? err.message : String(err)}`
       return {
         success: false,
-        content: [`File: ${filePath}`, `\`\`\`error`, errorMessage, '```'].join('\n'),
+        content: [`File: ${fileUri.fsPath}`, `\`\`\`error`, errorMessage, '```'].join('\n'),
       }
     }
   })

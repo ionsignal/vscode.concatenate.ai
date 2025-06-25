@@ -1,18 +1,21 @@
 import * as vscode from 'vscode'
-import * as path from 'path'
+import * as path from 'node:path'
+import { posix as posixPath } from 'path'
 import ignore, { Ignore } from 'ignore'
-import { promises as fsPromises } from 'fs'
 
 async function readFileContent(uri: vscode.Uri): Promise<string | null> {
   try {
-    const fileBuffer = await fsPromises.readFile(uri.fsPath)
-    return fileBuffer.toString('utf8')
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
+    const fileContentUint8Array = await vscode.workspace.fs.readFile(uri)
+    return Buffer.from(fileContentUint8Array).toString('utf8')
+  } catch (error: unknown) {
+    const errorCode = (error as { code?: string })?.code
+    if (errorCode === 'FileNotFound' || errorCode === 'ENOENT') {
       return null
     }
     vscode.window.showWarningMessage(
-      `Could not read ${path.basename(uri.fsPath)}: ${error.message}`
+      `Could not read ${path.basename(uri.fsPath)}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
     )
     return null
   }
@@ -22,32 +25,27 @@ export class TreeGenerator {
   public static async generateAsciiTree(rootUri: vscode.Uri): Promise<string> {
     const rootName = path.basename(rootUri.fsPath)
     let treeString = rootName + '\n'
-
-    // initialize the top-level ignore instance
-    let rootIg = ignore().add('.git') // Always ignore .git by default
-
-    // load .gitignore from the root directory, if it exists
+    let rootIg = ignore().add('.git')
     const rootGitignoreUri = vscode.Uri.joinPath(rootUri, '.gitignore')
     const rootGitignoreContent = await readFileContent(rootGitignoreUri)
     if (rootGitignoreContent !== null) {
       rootIg.add(rootGitignoreContent)
     }
-
     try {
-      const subtree = await this._buildTreeRecursive(rootUri, '', rootIg)
+      const subtree = await this._buildTreeRecursive(rootUri, '', '', rootIg)
       treeString += subtree
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       treeString += `└─ Error reading root directory: ${errorMessage}\n`
       vscode.window.showErrorMessage(`Error generating file tree: ${errorMessage}`)
     }
-
     return treeString.trimEnd()
   }
 
   private static async _buildTreeRecursive(
     directoryUri: vscode.Uri,
     prefix: string,
+    relativeBasePath: string,
     parentIg: Ignore
   ): Promise<string> {
     // create ignore instance for the current level, inheriting from parent, this creates
@@ -58,7 +56,6 @@ export class TreeGenerator {
     if (currentGitignoreContent !== null) {
       currentIg.add(currentGitignoreContent) // Add rules from this level
     }
-
     let entries: [string, vscode.FileType][] = []
     try {
       entries = await vscode.workspace.fs.readDirectory(directoryUri)
@@ -69,12 +66,12 @@ export class TreeGenerator {
     // filter entries based on the *current* ignore rules, we need paths relative
     // to the directoryUri for matching within this level's context
     const filteredEntries = entries.filter(([name, type]) => {
+      const entryRelativePath = posixPath.join(relativeBasePath, name)
       const isIgnored =
-        currentIg.ignores(name) ||
-        (type === vscode.FileType.Directory && currentIg.ignores(name + '/'))
+        currentIg.ignores(entryRelativePath) ||
+        (type === vscode.FileType.Directory && currentIg.ignores(`${entryRelativePath}/`))
       return !isIgnored
     })
-
     filteredEntries.sort((a, b) => {
       const [nameA, typeA] = a
       const [nameB, typeB] = b
@@ -99,7 +96,13 @@ export class TreeGenerator {
       if (type === vscode.FileType.Directory) {
         const childUri = vscode.Uri.joinPath(directoryUri, name)
         const childPrefix = prefix + (isLast ? '   ' : '|  ')
-        subtreeString += await this._buildTreeRecursive(childUri, childPrefix, currentIg)
+        const childRelativePath = path.join(relativeBasePath, name)
+        subtreeString += await this._buildTreeRecursive(
+          childUri,
+          childPrefix,
+          childRelativePath,
+          currentIg
+        )
       }
     }
     return subtreeString
