@@ -110,10 +110,10 @@
   },
   "devDependencies": {
     "@types/node": "24.0.4",
-    "@types/vscode": "1.101.0",
+    "@types/vscode": "1.85.0",
     "@typescript-eslint/eslint-plugin": "8.35.0",
     "@typescript-eslint/parser": "8.35.0",
-    "@vscode/vsce": "^3.5.0",
+    "@vscode/vsce": "^3.6.0",
     "eslint": "9.29.0",
     "rimraf": "^6.0.1",
     "typescript": "5.8.3"
