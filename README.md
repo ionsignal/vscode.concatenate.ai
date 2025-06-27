@@ -2,6 +2,8 @@
 
 A powerful VS Code extension that makes it easy to bundle multiple files into a single formatted document, optimized for use with AI tools like Google Gemini 2.5, ChatGPT, Claude, and other large language models (LLMs).
 
+![Demonstration of selecting multiple files](images/demo-select-files-and-folders.gif)
+
 ## Why You Need This
 
 Working with Large Language Models (LLMs) often requires providing multiple code files for context. This extension solves common challenges:
