@@ -2,6 +2,15 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.2.2] - 2025-06-21
+
+### Changed
+- Updated project repository and bug report URLs in `package.json` to point to the new `ionsignal` GitHub organization.
+- Added new demo assets (`.gif`, `.mp4`) to the extension manifest for an improved showcase on the Visual Studio Marketplace.
+
+### Fixed
+- Corrected the debugger configuration (`.vscode/launch.json`) to use the standard schema version (`0.2.0`).
+
 ## [0.2.1] - 2025-06-21
 
 ### Fixed
