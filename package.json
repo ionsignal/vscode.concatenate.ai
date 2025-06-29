@@ -23,7 +23,7 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "icon": "images/icon.png",
+  "icon": "assets/icon.png",
   "categories": [
     "Other",
     "Formatters",
@@ -109,12 +109,12 @@
     "ignore": "^7.0.5"
   },
   "devDependencies": {
-    "@types/node": "24.0.4",
+    "@types/node": "24.0.7",
     "@types/vscode": "1.85.0",
     "@typescript-eslint/eslint-plugin": "8.35.0",
     "@typescript-eslint/parser": "8.35.0",
     "@vscode/vsce": "^3.6.0",
-    "eslint": "9.29.0",
+    "eslint": "9.30.0",
     "rimraf": "^6.0.1",
     "typescript": "5.8.3"
   }
