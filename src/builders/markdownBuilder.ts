@@ -10,6 +10,14 @@ export interface MarkdownResult {
   successfulFileCount: number
 }
 
+export interface MarkdownBuilderOptions {
+  /**
+   * Set of file extensions (without dots) that should not be fenced in code blocks.
+   * These files will be separated by horizontal rules (---).
+   */
+  noFenceExtensions?: Set<string>
+}
+
 /**
  * Handles reading files and formatting them into a concatenated Markdown string.
  */
@@ -17,19 +25,24 @@ export class MarkdownBuilder {
   /**
    * Builds markdown from a DirectoryNode (recursive traversal result).
    */
-  public static async buildFromDirectory(root: DirectoryNode): Promise<MarkdownResult> {
+  public static async buildFromDirectory(
+    root: DirectoryNode,
+    options?: MarkdownBuilderOptions
+  ): Promise<MarkdownResult> {
     const files = this.flattenDirectory(root)
-    return this.processFiles(files)
+    return this.processFiles(files, options)
   }
 
   /**
    * Builds markdown from a specific list of URIs.
    * @param uris The list of file URIs.
    * @param root Optional root URI to calculate relative paths against.
+   * @param options Optional configuration for building markdown.
    */
   public static async buildFromUris(
     uris: vscode.Uri[],
-    root?: vscode.Uri
+    root?: vscode.Uri,
+    options?: MarkdownBuilderOptions
   ): Promise<MarkdownResult> {
     // We map URIs to simple FileNode-like structures for processing
     const files = uris.map(uri => {
@@ -46,9 +59,8 @@ export class MarkdownBuilder {
         relativePath: relativePath,
       } as FileNode
     })
-    return this.processFiles(files)
+    return this.processFiles(files, options)
   }
-
   private static flattenDirectory(node: DirectoryNode): FileNode[] {
     const files: FileNode[] = []
     for (const child of node.children) {
@@ -61,7 +73,10 @@ export class MarkdownBuilder {
     return files
   }
 
-  private static async processFiles(files: FileNode[]): Promise<MarkdownResult> {
+  private static async processFiles(
+    files: FileNode[],
+    options?: MarkdownBuilderOptions
+  ): Promise<MarkdownResult> {
     let successfulFileReadCount = 0
     const contentParts: string[] = []
     const fileProcessingPromises = files.map(async file => {
@@ -71,13 +86,25 @@ export class MarkdownBuilder {
         if (fileContent === null) {
           return `File: ${file.relativePath}\n(file not found)`
         }
-        const fileExtension = PathUtils.extname(file.uri.fsPath).substring(1) // remove dot
+        const fileExtension = PathUtils.extname(file.uri.fsPath).substring(1).toLowerCase() // remove dot & lowercase
         if (fileContent.trim() === '') {
           return `File: ${file.relativePath}\n(empty file)`
         } else {
-          return [`File: ${file.relativePath}`, `\`\`\`${fileExtension}`, fileContent, '```'].join(
-            '\n'
-          )
+          // Check if this extension should be unfenced
+          const shouldNotFence = options?.noFenceExtensions?.has(fileExtension)
+          if (shouldNotFence) {
+            // Unfenced format: Separated by horizontal rules
+            // We use double newlines to ensure clean separation
+            return [`File: ${file.relativePath}`, '---', fileContent, '---'].join('\n\n')
+          } else {
+            // Standard fenced format
+            return [
+              `File: ${file.relativePath}`,
+              `\`\`\`${fileExtension}`,
+              fileContent,
+              '```',
+            ].join('\n')
+          }
         }
       } catch (err) {
         const error = err as Error
@@ -86,6 +113,7 @@ export class MarkdownBuilder {
           return `File: ${file.relativePath}\n(Binary file omitted)`
         }
         const errorMessage = `Error reading file: ${error.message || String(err)}`
+        // Errors are always fenced to distinguish them from content
         return [`File: ${file.relativePath}`, `\`\`\`error`, errorMessage, '```'].join('\n')
       }
     })

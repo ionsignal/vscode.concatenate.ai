@@ -34,6 +34,7 @@ export class ConcatenateCommand {
     const config = ConfigurationManager.instance
     const allowedExtensions = config.recursiveSearchFileExtensions
     const prependHierarchy = config.prependFileHierarchy
+    const noFenceExtensions = config.noFenceExtensions
     let finalContent = ''
     let totalFiles = 0
     let successFiles = 0
@@ -48,7 +49,8 @@ export class ConcatenateCommand {
           finalContent += `File Hierarchy (from ${tree.name}):\n${treeString}\n\n`
         }
         // Generate Content
-        const result = await MarkdownBuilder.buildFromDirectory(tree)
+        // Pass noFenceExtensions to builder
+        const result = await MarkdownBuilder.buildFromDirectory(tree, { noFenceExtensions })
         finalContent += result.content + '\n\n'
         totalFiles += result.fileCount
         successFiles += result.successfulFileCount
@@ -70,7 +72,8 @@ export class ConcatenateCommand {
         finalContent += `File Hierarchy (from ${tree.name}):\n${treeString}\n\n`
       }
       // Pass commonBase to ensure relative paths in output
-      const result = await MarkdownBuilder.buildFromUris(files, commonBase)
+      // Pass noFenceExtensions to builder
+      const result = await MarkdownBuilder.buildFromUris(files, commonBase, { noFenceExtensions })
       finalContent += result.content + '\n\n'
       totalFiles += result.fileCount
       successFiles += result.successfulFileCount

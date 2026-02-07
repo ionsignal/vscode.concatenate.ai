@@ -22,7 +22,7 @@ Working with LLMs often requires providing multiple code files to establish cont
 
 ### Context Awareness
 - **File Hierarchy Tree**: Optionally prepend an ASCII tree of your project structure to the output. This gives the AI a "map" of your project, even for files you didn't include in the full content.
-- **Markdown Formatting**: Wraps file content in code fences with the correct language extension (e.g., ` ```ts `) for syntax highlighting.
+- **Smart Formatting**: Wraps code files in syntax-highlighted blocks (e.g., ` ```ts `), but preserves the readability of documentation files (like `.md` or `.mdx`) by separating them with horizontal rules instead of code fences.
 
 ## How to Use
 
@@ -43,6 +43,7 @@ You can customize the extension behavior in VS Code Settings (`Cmd+,`):
 | :--- | :--- | :--- |
 | `concatenate.recursiveSearchFileExtensions` | `["mdx", "ts", "js"]` | List of file extensions to include when recursively scanning folders. |
 | `concatenate.prependFileHierarchy` | `false` | If enabled, adds a full ASCII file tree of the root directory to the top of the document. |
+| `concatenate.noFenceExtensions` | `["md", "mdx"]` | List of extensions to format without code blocks (useful for Markdown files). |
 
 ## Feedback & Contributions
 

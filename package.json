@@ -57,11 +57,24 @@
         "concatenate.recursiveSearchFileExtensions": {
           "type": "array",
           "default": [
+            "md",
             "mdx",
             "ts",
             "js"
           ],
           "description": "An array of file extensions to include when recursively concatenating files from a directory (e.g., [\"ts\", \"js\"]).",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          }
+        },
+        "concatenate.noFenceExtensions": {
+          "type": "array",
+          "default": [
+            "md",
+            "mdx"
+          ],
+          "description": "File extensions that should not be wrapped in code blocks (e.g., Markdown files). These will be separated by horizontal rules instead.",
           "scope": "resource",
           "items": {
             "type": "string"

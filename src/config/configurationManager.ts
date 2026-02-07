@@ -6,6 +6,7 @@ import * as vscode from 'vscode'
 enum ConfigKeys {
   PrependFileHierarchy = 'prependFileHierarchy',
   RecursiveSearchFileExtensions = 'recursiveSearchFileExtensions',
+  NoFenceExtensions = 'noFenceExtensions',
 }
 
 const SECTION = 'concatenate'
@@ -47,6 +48,16 @@ export class ConfigurationManager {
       'ts',
       'js',
     ])
+    // Normalize to lowercase and remove leading dots if present for robust matching
+    return new Set(extensions.map(ext => ext.toLowerCase().replace(/^\./, '')))
+  }
+
+  /**
+   * An array of file extensions that should NOT be fenced in code blocks.
+   * Returns a Set for O(1) lookup performance.
+   */
+  public get noFenceExtensions(): Set<string> {
+    const extensions = this.getConfig().get<string[]>(ConfigKeys.NoFenceExtensions, ['md', 'mdx'])
     // Normalize to lowercase and remove leading dots if present for robust matching
     return new Set(extensions.map(ext => ext.toLowerCase().replace(/^\./, '')))
   }
