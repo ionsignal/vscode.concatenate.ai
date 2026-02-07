@@ -1,50 +1,52 @@
 # Concatenate for AI
 
-A powerful VS Code extension that makes it easy to bundle multiple files into a single formatted document, optimized for use with AI tools like Google Gemini 2.5, ChatGPT, Claude, and other large language models (LLMs).
+A powerful VS Code extension that bundles multiple files or entire directories into a single, formatted Markdown document. It is optimized for providing context to AI tools like **Google Gemini 3.0 Pro**, **ChatGPT (o1, 4o)**, **Claude 3.5 Sonnet**, and other Large Language Models (LLMs).
 
 ![Demonstration of selecting multiple files](assets/demo-select-files-and-folders.gif)
 
 ## Why You Need This
 
-Working with Large Language Models (LLMs) often requires providing multiple code files for context. This extension solves common challenges:
+Working with LLMs often requires providing multiple code files to establish context. Manually copying and pasting files is tedious and loses structural information. This extension solves common challenges:
 
-- **Streamline AI-assisted programming** by quickly assembling relevant project files
-- **Preserve file paths** for proper context when discussing code with AI assistants
-- **Maintain code formatting and syntax highlighting** with proper language tags
+- **Streamline AI-assisted programming**: Quickly assemble relevant project files into one prompt-ready block.
+- **Preserve Context**: Maintains file paths and directory structures so the AI understands your architecture.
+- **Smart Filtering**: Automatically respects your `.gitignore` rules and skips binary files to keep your token count efficient.
 
 ## Features
 
-### Concatenate Files or Folders
+### Smart Concatenation
+- **Select Individual Files**: Hand-pick specific files from the Explorer.
+- **Recursive Folder Search**: Right-click a folder to find and concatenate all relevant files within it.
+- **.gitignore Support**: The extension reads your `.gitignore` files (and nested ones) to ensure you don't accidentally send `node_modules`, build artifacts, or secrets to the AI.
+- **Binary Safety**: Automatically detects and skips binary files to prevent encoding errors.
 
-- **Select Individual Files**: Hand-pick any number of files from the Explorer.
-- **Select Folders**: Right-click a folder (or multiple folders) to recursively find and concatenate all relevant files within them. The search respects your `.gitignore` files and is configurable to only include certain file extensions.
-
-### Convenient Output Option
-
-**Concatenate to New Document** - Creates a new unsaved document with all your selected files properly formatted
+### Context Awareness
+- **File Hierarchy Tree**: Optionally prepend an ASCII tree of your project structure to the output. This gives the AI a "map" of your project, even for files you didn't include in the full content.
+- **Markdown Formatting**: Wraps file content in code fences with the correct language extension (e.g., ` ```ts `) for syntax highlighting.
 
 ## How to Use
 
 1.  In the VS Code Explorer:
-    -   To concatenate files: Select multiple files (using `Ctrl/Cmd+Click`).
-    -   To concatenate a folder's contents: Select one or more folders.
-2.  Right-click on your selection and choose:
+    -   **For specific files**: Select multiple files (using `Ctrl/Cmd+Click`).
+    -   **For folders**: Right-click a folder (or multiple folders).
+2.  Choose one of the commands from the context menu:
     -   **Concatenate selected files as new document**
     -   **Concatenate files in folder as new document**
-3.  Copy the resulting output to your favorite AI tool.
-
-## Output Format
-
-Files are concatenated with proper Markdown code fencing and language detection.
+3.  A new unsaved document will open with your formatted content.
+4.  Copy the text and paste it into your AI chat window.
 
 ## Configuration
 
-- `concatenate.recursiveSearchFileExtensions`: Control which files are included when concatenating a folder. Defaults to `["mdx", "ts", "js"]`.
-- `concatenate.prependFileHierarchy`: Optionally prepend an ASCII tree of your project structure to the output.
+You can customize the extension behavior in VS Code Settings (`Cmd+,`):
+
+| Setting | Default | Description |
+| :--- | :--- | :--- |
+| `concatenate.recursiveSearchFileExtensions` | `["mdx", "ts", "js"]` | List of file extensions to include when recursively scanning folders. |
+| `concatenate.prependFileHierarchy` | `false` | If enabled, adds a full ASCII file tree of the root directory to the top of the document. |
 
 ## Feedback & Contributions
 
-Issues and contributions are welcome on [GitHub](https://github.com/neutrino84/vscode.concatenate.ai)
+Issues and contributions are welcome on [GitHub](https://github.com/ionsignal/vscode.concatenate.ai).
 
 ## License
 
