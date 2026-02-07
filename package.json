@@ -2,10 +2,10 @@
   "private": true,
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
-  "description": "Concatenates selected files for use with AI",
+  "description": "Export codebase context for LLMs (ChatGPT, Claude, Copilot). Concatenates files & folders into Markdown with file trees and .gitignore support.",
   "version": "0.4.8",
   "publisher": "IonSignal",
-  "homepage": "https://github.com/ionsignal/vscode.concatenate.ai.git",
+  "homepage": "https://github.com/ionsignal/vscode.concatenate.ai/blob/main/README.md",
   "bugs": {
     "url": "https://github.com/ionsignal/vscode.concatenate.ai/issues"
   },
@@ -33,25 +33,26 @@
     "ai",
     "markdown",
     "concatenate",
-    "concatenation",
-    "files",
-    "merge",
-    "combine",
     "chatgpt",
+    "claude",
+    "copilot",
     "llm",
     "prompt",
-    "context-window"
+    "context",
+    "codebase",
+    "export",
+    "merge"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-      "title": "Concatenate for AI Settings",
+      "title": "Concatenate for AI",
       "properties": {
         "concatenate.prependFileHierarchy": {
           "type": "boolean",
           "default": false,
-          "description": "If enabled, prepend a full file hierarchy of the related root directory.",
+          "description": "Prepend an ASCII tree diagram of the file hierarchy at the top of the document.",
           "scope": "resource"
         },
         "concatenate.recursiveSearchFileExtensions": {
@@ -60,9 +61,16 @@
             "md",
             "mdx",
             "ts",
-            "js"
+            "js",
+            "tsx",
+            "jsx",
+            "json",
+            "py",
+            "go",
+            "rs",
+            "java"
           ],
-          "description": "An array of file extensions to include when recursively concatenating files from a directory (e.g., [\"ts\", \"js\"]).",
+          "description": "File extensions to include when recursively concatenating directories.",
           "scope": "resource",
           "items": {
             "type": "string"
@@ -72,9 +80,10 @@
           "type": "array",
           "default": [
             "md",
-            "mdx"
+            "mdx",
+            "txt"
           ],
-          "description": "File extensions that should not be wrapped in code blocks (e.g., Markdown files). These will be separated by horizontal rules instead.",
+          "description": "Extensions that should NOT be wrapped in code blocks (rendered as raw text separated by horizontal rules).",
           "scope": "resource",
           "items": {
             "type": "string"
@@ -85,11 +94,11 @@
     "commands": [
       {
         "command": "concatenate.explorerFilesAsNewDocument",
-        "title": "Concatenate selected files as new document"
+        "title": "Concatenate for AI: Selected Files"
       },
       {
         "command": "concatenate.explorerDirectoryAsNewDocument",
-        "title": "Concatenate files in folder as new document"
+        "title": "Concatenate for AI: Folder"
       }
     ],
     "menus": {
@@ -97,12 +106,12 @@
         {
           "command": "concatenate.explorerFilesAsNewDocument",
           "when": "explorerResourceIsFolder == false",
-          "group": "concatenate"
+          "group": "concatenate@1"
         },
         {
           "command": "concatenate.explorerDirectoryAsNewDocument",
           "when": "explorerResourceIsFolder == true",
-          "group": "concatenate"
+          "group": "concatenate@1"
         }
       ]
     }

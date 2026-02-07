@@ -2,6 +2,23 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.4.8] - 2026-02-07
+
+### Added
+- **Smart Formatting ("Unfenced" Extensions)**: Added `concatenate.noFenceExtensions` setting (default: `['md', 'mdx']`). Files matching these extensions are now separated by horizontal rules (`---`) instead of code blocks. This allows you to include prompt instructions or documentation that the LLM should read naturally, rather than treating it as code to be analyzed.
+- **Binary File Detection**: The extension now automatically detects binary files during traversal. Instead of outputting garbled text, it inserts a placeholder `(Binary file omitted)`, preventing token waste and confusion.
+
+### Changed
+- **Architecture Overhaul**: Complete refactor of the core logic into modular services (`Traverser`, `Builders`, `Utils`). This improves stability and makes the extension easier to maintain.
+- **Strict .gitignore Compliance**: Implemented robust, nested `.gitignore` handling. The extension now correctly respects ignore rules located in subdirectories, ensuring that generated contexts match exactly what you expect from your git configuration.
+- **Performance**: Optimized the recursive file traversal and tree generation logic for faster processing of large directories.
+- **Configuration**: `ConfigurationManager` now uses `Set` data structures for O(1) lookup performance when checking file extensions.
+
+## [0.3.0] - 2025-06-29
+
+### Refactor
+- **Asset Management**: Updated project structure to use `assets` folder instead of `images` for better organization and marketplace compatibility.
+
 ## [0.2.2] - 2025-06-21
 
 ### Changed
