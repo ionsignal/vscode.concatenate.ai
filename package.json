@@ -3,7 +3,7 @@
   "name": "concatenate-for-ai",
   "displayName": "Concatenate for AI",
   "description": "Export codebase context for LLMs (ChatGPT, Claude, Copilot). Concatenates files & folders into Markdown with file trees and .gitignore support.",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "publisher": "IonSignal",
   "homepage": "https://github.com/ionsignal/vscode.concatenate.ai/blob/main/README.md",
   "bugs": {
