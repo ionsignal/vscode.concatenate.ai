@@ -30,6 +30,26 @@ export class ConcatenateCommand {
     const stats = await Promise.all(statPromises)
     const directories = stats.filter(s => s.stat.type === vscode.FileType.Directory).map(s => s.uri)
     const files = stats.filter(s => s.stat.type === vscode.FileType.File).map(s => s.uri)
+    // Determine Root Context
+    // We check if all selected items belong to the same workspace folder.
+    // If so, we use that workspace folder as the root to provide full context paths.
+    // If not (or if no workspace is open), we fall back to the common base path of the selection.
+    let root: vscode.Uri | undefined
+    if (targets.length > 0) {
+      const firstFolder = vscode.workspace.getWorkspaceFolder(targets[0])
+      const allInSameFolder =
+        firstFolder &&
+        targets.every(t => {
+          const f = vscode.workspace.getWorkspaceFolder(t)
+          return f && f.uri.toString() === firstFolder.uri.toString()
+        })
+
+      if (allInSameFolder) {
+        root = firstFolder.uri
+      } else {
+        root = PathUtils.findCommonBasePath(targets)
+      }
+    }
     // Configuration
     const config = ConfigurationManager.instance
     const allowedExtensions = config.recursiveSearchFileExtensions
@@ -49,8 +69,16 @@ export class ConcatenateCommand {
           finalContent += `File Hierarchy (from ${tree.name}):\n${treeString}\n\n`
         }
         // Generate Content
-        // Pass noFenceExtensions to builder
-        const result = await MarkdownBuilder.buildFromDirectory(tree, { noFenceExtensions })
+        // Calculate the relative path from the determined root to this directory
+        // This ensures the file headers show the full path context (e.g. "src/utils/file.ts")
+        let pathPrefix = ''
+        if (root) {
+          pathPrefix = PathUtils.relative(root.fsPath, dir.fsPath)
+        }
+        const result = await MarkdownBuilder.buildFromDirectory(tree, {
+          noFenceExtensions,
+          pathPrefix,
+        })
         finalContent += result.content + '\n\n'
         totalFiles += result.fileCount
         successFiles += result.successfulFileCount
@@ -58,22 +86,23 @@ export class ConcatenateCommand {
     }
     // Process Explicit Files (File Mode)
     if (files.length > 0) {
-      // Calculate common base for relative path generation
-      // We do this regardless of 'prependHierarchy' so that file headers are always relative
-      const commonBase = PathUtils.findCommonBasePath(files)
       // If hierarchy is enabled for explicit files, we generate a tree for their common parent
-      if (prependHierarchy && commonBase) {
-        // We traverse the base to get the tree string, but we DON'T use this for content generation
-        // because we only want the *selected* files' content.
-        const traverser = new FileSystemTraverser()
-        // We will run traverser WITHOUT extension filter for the visual tree to be accurate to FS.
-        const tree = await traverser.getDirectoryStructure(commonBase, { useGitIgnore: true })
-        const treeString = TreeBuilder.build(tree)
-        finalContent += `File Hierarchy (from ${tree.name}):\n${treeString}\n\n`
+      // Note: For the Visual Tree, we still use the common base of the *files* to keep the tree compact.
+      // But for the Content Headers, we use the global 'root' calculated above.
+      if (prependHierarchy) {
+        const filesCommonBase = PathUtils.findCommonBasePath(files)
+        if (filesCommonBase) {
+          const traverser = new FileSystemTraverser()
+          // We will run traverser WITHOUT extension filter for the visual tree to be accurate to FS.
+          const tree = await traverser.getDirectoryStructure(filesCommonBase, {
+            useGitIgnore: true,
+          })
+          const treeString = TreeBuilder.build(tree)
+          finalContent += `File Hierarchy (from ${tree.name}):\n${treeString}\n\n`
+        }
       }
-      // Pass commonBase to ensure relative paths in output
-      // Pass noFenceExtensions to builder
-      const result = await MarkdownBuilder.buildFromUris(files, commonBase, { noFenceExtensions })
+      // Pass the determined global root to ensure relative paths in output match the workspace context
+      const result = await MarkdownBuilder.buildFromUris(files, root, { noFenceExtensions })
       finalContent += result.content + '\n\n'
       totalFiles += result.fileCount
       successFiles += result.successfulFileCount

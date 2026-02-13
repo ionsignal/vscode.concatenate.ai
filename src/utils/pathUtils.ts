@@ -45,6 +45,16 @@ export class PathUtils {
   }
 
   /**
+   * Calculates the relative path from one path to another using POSIX separators.
+   *
+   * @param from The source path.
+   * @param to The destination path.
+   */
+  public static relative(from: string, to: string): string {
+    return this.toPosix(path.relative(from, to))
+  }
+
+  /**
    * Finds the deepest common directory path for a given array of file URIs.
    *
    * @param uris An array of file URIs.

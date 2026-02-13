@@ -16,6 +16,11 @@ export interface MarkdownBuilderOptions {
    * These files will be separated by horizontal rules (---).
    */
   noFenceExtensions?: Set<string>
+  /**
+   * Optional prefix to prepend to the relative path of files in the header.
+   * Useful when files are deep in a directory structure but we want to show context relative to the workspace root.
+   */
+  pathPrefix?: string
 }
 
 /**
@@ -82,39 +87,43 @@ export class MarkdownBuilder {
     const fileProcessingPromises = files.map(async file => {
       try {
         const fileContent = await FileSystem.readFile(file.uri)
+        // Construct the header path, optionally prepending a prefix
+        let headerPath = file.relativePath
+        if (options?.pathPrefix) {
+          headerPath = PathUtils.joinPosix(options.pathPrefix, file.relativePath)
+        }
         // If readFile returns null (e.g. file not found), we handle it gracefully
         if (fileContent === null) {
-          return `File: ${file.relativePath}\n(file not found)`
+          return `File: ${headerPath}\n(file not found)`
         }
         const fileExtension = PathUtils.extname(file.uri.fsPath).substring(1).toLowerCase() // remove dot & lowercase
         if (fileContent.trim() === '') {
-          return `File: ${file.relativePath}\n(empty file)`
+          return `File: ${headerPath}\n(empty file)`
         } else {
           // Check if this extension should be unfenced
           const shouldNotFence = options?.noFenceExtensions?.has(fileExtension)
           if (shouldNotFence) {
             // Unfenced format: Separated by horizontal rules
             // We use double newlines to ensure clean separation
-            return [`File: ${file.relativePath}`, '---', fileContent, '---'].join('\n\n')
+            return [`File: ${headerPath}`, '---', fileContent, '---'].join('\n\n')
           } else {
             // Standard fenced format
-            return [
-              `File: ${file.relativePath}`,
-              `\`\`\`${fileExtension}`,
-              fileContent,
-              '```',
-            ].join('\n')
+            return [`File: ${headerPath}`, `\`\`\`${fileExtension}`, fileContent, '```'].join('\n')
           }
         }
       } catch (err) {
         const error = err as Error
+        let headerPath = file.relativePath
+        if (options?.pathPrefix) {
+          headerPath = PathUtils.joinPosix(options.pathPrefix, file.relativePath)
+        }
         // Handle binary files gracefully
         if (error.message === 'Binary file detected') {
-          return `File: ${file.relativePath}\n(Binary file omitted)`
+          return `File: ${headerPath}\n(Binary file omitted)`
         }
         const errorMessage = `Error reading file: ${error.message || String(err)}`
         // Errors are always fenced to distinguish them from content
-        return [`File: ${file.relativePath}`, `\`\`\`error`, errorMessage, '```'].join('\n')
+        return [`File: ${headerPath}`, `\`\`\`error`, errorMessage, '```'].join('\n')
       }
     })
     const results = await Promise.allSettled(fileProcessingPromises)
