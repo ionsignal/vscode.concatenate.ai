@@ -14,3 +14,7 @@ tsconfig.json
 webpack.config.js
 *.vsix
 eslint.config.js
+CODE.md
+PROMPT.md
+dev.diff
+*.code-workspace

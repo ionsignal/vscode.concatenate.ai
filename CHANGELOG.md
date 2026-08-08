@@ -2,7 +2,7 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
-## [0.4.11] - 2026-08-08
+## [0.5.0] - 2026-08-08
 
 ### Changed
 - Generated content for files with `.md`, `.mdx`, or `.markdown` extensions now uses four-backtick fences.
