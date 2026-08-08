@@ -1,53 +1,96 @@
 # Concatenate for AI
 
-A powerful VS Code extension that bundles multiple files or entire directories into a single, formatted Markdown document. It is optimized for providing context to AI tools like **Google Gemini 3.0 Pro**, **ChatGPT (o1, 4o)**, **Claude 3.5 Sonnet**, and other Large Language Models (LLMs).
+Concatenate for AI creates one unsaved Markdown document from files and folders selected in the VS Code Explorer. Use the generated document to provide source and documentation context to Fable or GPT-5.6.
 
 ![Demonstration of selecting multiple files](assets/demo-select-files-and-folders.gif)
 
-## Why You Need This
+## What does the extension include?
 
-Working with LLMs often requires providing multiple code files to establish context. Manually copying and pasting files is tedious and loses structural information. This extension solves common challenges:
+- **Selected files:** Includes explicitly selected files, even when their extensions are not listed in `concatenate.recursiveSearchFileExtensions`.
+- **Selected folders:** Recursively includes matching files from selected folders.
+- **Duplicate selections:** Includes a file once when it is selected directly and also discovered through a selected folder.
+- **Folder filtering:** Applies configured extensions and `.gitignore` rules during folder traversal.
+- **Deterministic order:** Lists directories before files and sorts entries alphabetically.
+- **File paths:** Uses workspace-relative paths when all selections belong to one workspace folder. Otherwise, it uses a common base path when available. It uses the resource URI when it cannot derive a relative path.
+- **Optional hierarchy:** Prepends an ASCII hierarchy that represents the selected and traversed files.
 
-- **Streamline AI-assisted programming**: Quickly assemble relevant project files into one prompt-ready block.
-- **Preserve Context**: Maintains file paths and directory structures so the AI understands your architecture.
-- **Smart Filtering**: Automatically respects your `.gitignore` rules and skips binary files to keep your token count efficient.
+Folder traversal skips `.git` directories and symbolic-link entries.
 
-## Features
+## How does the output format files?
 
-### Smart Concatenation
-- **Select Individual Files**: Hand-pick specific files from the Explorer.
-- **Recursive Folder Search**: Right-click a folder to find and concatenate all relevant files within it.
-- **.gitignore Support**: The extension reads your `.gitignore` files (and nested ones) to ensure you don't accidentally send `node_modules`, build artifacts, or secrets to the AI.
-- **Binary Safety**: Automatically detects and skips binary files to prevent encoding errors.
+Each included file starts with a `File:` header followed by its path.
 
-### Context Awareness
-- **File Hierarchy Tree**: Optionally prepend an ASCII tree of your project structure to the output. This gives the AI a "map" of your project, even for files you didn't include in the full content.
-- **Smart Formatting**: Wraps code files in syntax-highlighted blocks (e.g., ` ```ts `), but preserves the readability of documentation files (like `.md` or `.mdx`) by separating them with horizontal rules instead of code fences.
+| File type | Content fence |
+| --- | --- |
+| `.md`, `.mdx`, `.markdown` | Four backticks |
+| All other text files | Three backticks |
 
-## How to Use
+The extension handles non-text and unavailable files explicitly:
 
-1.  In the VS Code Explorer:
-    -   **For specific files**: Select multiple files (using `Ctrl/Cmd+Click`).
-    -   **For folders**: Right-click a folder (or multiple folders).
-2.  Choose one of the commands from the context menu:
-    -   **Concatenate selected files as new document**
-    -   **Concatenate files in folder as new document**
-3.  A new unsaved document will open with your formatted content.
-4.  Copy the text and paste it into your AI chat window.
+- Empty text files produce `(empty file)`.
+- Missing selected files produce `(file not found)`.
+- Detected binary files produce `(Binary file omitted)`.
+- File read failures produce an inline `error` code block.
+- Directory traversal and `.gitignore` failures appear in a `Discovery issues:` section.
 
-## Configuration
+If folder traversal finds no matching files, the extension does not open an output document.
 
-You can customize the extension behavior in VS Code Settings (`Cmd+,`):
+## How do I create a document?
 
-| Setting | Default | Description |
-| :--- | :--- | :--- |
-| `concatenate.recursiveSearchFileExtensions` | `["mdx", "ts", "js"]` | List of file extensions to include when recursively scanning folders. |
-| `concatenate.prependFileHierarchy` | `false` | If enabled, adds a full ASCII file tree of the root directory to the top of the document. |
-| `concatenate.noFenceExtensions` | `["md", "mdx"]` | List of extensions to format without code blocks (useful for Markdown files). |
+1. In the VS Code Explorer, select one or more files, folders, or both.
+2. Right-click a selected file and choose **Concatenate for AI: Selected Files**.
+3. Right-click a selected folder and choose **Concatenate for AI: Folder**.
+4. The extension opens a new unsaved Markdown document.
 
-## Feedback & Contributions
+For a mixed file-and-folder selection, use the command from the resource you right-click. The extension collects all selected resources.
 
-Issues and contributions are welcome on [GitHub](https://github.com/ionsignal/vscode.concatenate.ai).
+## Which settings are available?
+
+Configure these resource-scoped settings in VS Code Settings.
+
+| Setting | Default | Effect |
+| --- | --- | --- |
+| `concatenate.recursiveSearchFileExtensions` | `["md", "mdx", "ts", "js", "tsx", "jsx", "json", "py", "go", "rs", "java"]` | Includes these extensions while recursively scanning selected folders. Explicitly selected files are not filtered by this setting. |
+| `concatenate.prependFileHierarchy` | `false` | Prepends an ASCII hierarchy for the selected and traversed structure. |
+
+Extension values are case-insensitive. A leading period, such as `.ts`, is accepted.
+
+## How do I build the extension?
+
+### Prerequisites
+
+- Node.js and npm. This repository does not declare a required Node.js version.
+- VS Code `^1.100.0` to run the extension.
+
+### Build steps
+
+1. Install dependencies.
+
+   ```sh
+   npm install
+   ```
+
+   Expected result: npm installs the packages required to compile and lint the extension.
+
+2. Compile the TypeScript source.
+
+   ```sh
+   npm run compile
+   ```
+
+   Expected result: the command removes the existing `out` directory and writes compiled extension files to `out`.
+
+3. Run the linter.
+
+   ```sh
+   npm run lint
+   ```
+
+   Expected result: ESLint reports no errors for TypeScript files in `src`.
+
+## Feedback and contributions
+
+Report issues and contribute at [github.com/ionsignal/vscode.concatenate.ai](https://github.com/ionsignal/vscode.concatenate.ai).
 
 ## License
 

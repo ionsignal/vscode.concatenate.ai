@@ -1,24 +1,17 @@
 import * as vscode from 'vscode'
-import { ConcatenateCommand } from './commands/concatenateCommand'
+import { run } from './concatenate/run'
 
-export function activate(context: vscode.ExtensionContext) {
-  // Register the command.
-  // We register both command IDs to the same handler because our ConcatenateCommand
-  // is smart enough to handle both Files and Folders based on the input URIs.
-  // This simplifies the logic significantly.
-  const disposableFiles = vscode.commands.registerCommand(
+export function activate(context: vscode.ExtensionContext): void {
+  const concatenate = (uri?: vscode.Uri, selectedUris?: vscode.Uri[]) => run(uri, selectedUris)
+  const files = vscode.commands.registerCommand(
     'concatenate.explorerFilesAsNewDocument',
-    (uri: vscode.Uri, selectedUris: vscode.Uri[]) => {
-      return ConcatenateCommand.execute(uri, selectedUris)
-    }
+    concatenate
   )
-  const disposableFolder = vscode.commands.registerCommand(
+  const folders = vscode.commands.registerCommand(
     'concatenate.explorerDirectoryAsNewDocument',
-    (uri: vscode.Uri, selectedUris: vscode.Uri[]) => {
-      return ConcatenateCommand.execute(uri, selectedUris)
-    }
+    concatenate
   )
-  context.subscriptions.push(disposableFiles, disposableFolder)
+  context.subscriptions.push(files, folders)
 }
 
-export function deactivate() {}
+export function deactivate(): void {}

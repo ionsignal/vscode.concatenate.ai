@@ -1,65 +1,66 @@
 # Support
 
-## Purpose
+## Where can I report a problem?
 
-This file provides resources and information to help users and contributors with the **Concatenate for AI** VS Code extension.
+Use the [GitHub issue tracker](https://github.com/ionsignal/vscode.concatenate.ai/issues) to report bugs or request features.
 
-## Contact
+Before opening an issue:
 
-*   **Report Bugs or Suggest Features:** Please use the [GitHub Issues](https://github.com/neutrino84/vscode.concatenate.ai/issues) page. Check existing issues first to avoid duplicates.
+1. Search existing issues for the same problem.
+2. Describe what you expected and what happened instead.
+3. Include steps that reproduce the problem.
+4. Include your VS Code version and operating system.
 
-## Contribution Guidelines
+## How can I contribute?
 
-We welcome contributions to improve Concatenate for AI! Whether it's fixing bugs, adding new features, or improving documentation, your help is appreciated.
+You need write access to push directly to this repository. If you do not have write access, contribute through a fork and pull request.
 
-### Reporting Issues
+1. Fork [ionsignal/vscode.concatenate.ai](https://github.com/ionsignal/vscode.concatenate.ai).
+   - Your GitHub account now has a copy of the repository.
 
-*   Use the [GitHub Issues](https://github.com/neutrino84/vscode.concatenate.ai/issues) tracker.
-*   Provide a clear title and description.
-*   Include steps to reproduce the bug if applicable.
-*   Mention your VS Code version and operating system.
+2. Clone your fork.
 
-### Submitting Changes (Pull Requests)
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/vscode.concatenate.ai.git
+   cd vscode.concatenate.ai
+   ```
 
-1.  **Fork the Repository:** Create your own fork of the [neutrino84/vscode.concatenate.ai](https://github.com/neutrino84/vscode.concatenate.ai) repository on GitHub.
-2.  **Clone Your Fork:** Clone your forked repository to your local machine.
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/vscode.concatenate.ai.git
-    cd vscode.concatenate.ai
-    ```
-3.  **Install Dependencies:**
-    ```bash
-    npm install
-    ```
-4.  **Create a Branch:** Create a new branch for your changes. Choose a descriptive name (e.g., `fix/empty-file-handling`, `feat/add-ignore-patterns`).
-    ```bash
-    git checkout -b your-branch-name
-    ```
-5.  **Make Your Changes:** Implement your fix or feature.
-6.  **Lint and Compile:** Ensure your code adheres to the project's style guidelines and compiles correctly.
-    ```bash
-    npm run lint
-    npm run compile
-    ```
-    Fix any errors reported by the linter or compiler.
-7.  **Commit Your Changes:** Write clear and concise commit messages.
-    ```bash
-    git add .
-    git commit -m "feat: Describe your feature"
-    # or
-    git commit -m "fix: Describe your fix"
-    ```
-8.  **Push to Your Fork:** Push your branch to your forked repository on GitHub.
-    ```bash
-    git push origin your-branch-name
-    ```
-9.  **Open a Pull Request:** Go to the original [neutrino84/vscode.concatenate.ai](https://github.com/neutrino84/vscode.concatenate.ai) repository and open a Pull Request (PR) from your branch to the `main` branch.
-10. **Describe Your PR:** Provide a clear description of the changes you made and why. Reference any related issues (e.g., "Fixes #123").
+3. Create a branch for your change.
 
-### Code Style
+   ```bash
+   git checkout -b fix/describe-the-change
+   ```
 
-This project uses ESLint and Prettier for code linting and formatting. Please ensure your contributions conform to the styles defined in the configuration files (`.eslintrc.js`, `.prettierrc.json`). Running `npm run lint` will help identify issues.
+4. Install dependencies.
 
-### License
+   ```bash
+   npm install
+   ```
 
-By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE) that covers the project.
+5. Make and review your changes.
+
+6. Validate the extension.
+
+   ```bash
+   npm run compile
+   npm run lint
+   ```
+
+   - Both commands should finish without errors.
+
+7. Commit and push your branch.
+
+   ```bash
+   git add .
+   git commit -m "fix: describe the change"
+   git push origin fix/describe-the-change
+   ```
+
+8. Open a pull request against the `main` branch of
+   [ionsignal/vscode.concatenate.ai](https://github.com/ionsignal/vscode.concatenate.ai).
+   - Describe the change and its purpose.
+   - Link related issues when applicable.
+
+## License
+
+By submitting a contribution, you agree to license it under this repository's MIT license.
