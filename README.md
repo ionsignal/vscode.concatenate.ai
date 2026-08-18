@@ -12,7 +12,7 @@ Concatenate for AI creates one unsaved Markdown document from files and folders 
 - **Folder filtering:** Applies configured extensions and `.gitignore` rules during folder traversal.
 - **Deterministic order:** Lists directories before files and sorts entries alphabetically.
 - **File paths:** Uses workspace-relative paths when all selections belong to one workspace folder. Otherwise, it uses a common base path when available. It uses the resource URI when it cannot derive a relative path.
-- **Optional hierarchy:** Prepends an ASCII hierarchy that represents the selected and traversed files.
+- **Optional hierarchy:** Prepends an ASCII hierarchy, rendered as a fenced `text` block, that represents the selected and traversed files.
 
 Folder traversal skips `.git` directories and symbolic-link entries.
 

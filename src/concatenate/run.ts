@@ -55,7 +55,14 @@ async function prepare(
     }
     const sections = [markdown.content]
     if (configuration.hierarchy) {
-      sections.unshift(`File Hierarchy (from ${collection.tree.name}):\n${render(collection.tree)}`)
+      sections.unshift(
+        [
+          `File Hierarchy (from ${collection.tree.name}):`,
+          '```text',
+          render(collection.tree),
+          '```',
+        ].join('\n')
+      )
     }
     return {
       content: sections.join('\n\n').trim(),

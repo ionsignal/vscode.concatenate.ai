@@ -2,6 +2,11 @@
 
 All notable changes to the "Concatenate for AI" extension will be documented in this file.
 
+## [0.5.1] - 2026-08-18
+
+### Fixed
+- Wrapped the optional file hierarchy in a fenced `text` block so it renders consistently in generated Markdown documents.
+
 ## [0.5.0] - 2026-08-08
 
 ### Changed
